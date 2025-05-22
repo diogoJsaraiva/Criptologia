@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import socket
-from crypto import caesar_encrypt, generate_shared_key, generate_public_key, generate_private_key
+from crypto import caesar_encrypt, generate_shared_key, generate_public_key, generate_private_key 
 
 prime = 23
 base = 5
@@ -9,6 +9,19 @@ private_key = generate_private_key()
 public_key = generate_public_key(base, prime, private_key)
 shared_key = None
 
+async def enviar_vpn_async(mensagem_cifrada):
+    global shared_key
+    async with websockets.connect("ws://localhost:8765") as websocket:
+        await websocket.send(str(public_key))
+        server_pub_key = int(await websocket.recv())
+        shared_key = generate_shared_key(server_pub_key, private_key, prime)
+        await websocket.send(mensagem_cifrada)
+        # Não é necessário receber nada, a função termina aqui.
+
+def enviar_mensagem_vpn(mensagem_cifrada):
+    asyncio.run(enviar_vpn_async(mensagem_cifrada))
+    
+'''
 async def udp_listener():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("127.0.0.1", 8888))
@@ -43,3 +56,4 @@ async def vpn_client():
                 await asyncio.sleep(1)
 
 asyncio.run(vpn_client())
+'''
