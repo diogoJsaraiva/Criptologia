@@ -65,9 +65,9 @@ A VPN é composta por:
    * Terminal 3: **Cliente UDP 1 ou 2**
 
      ```bash
-     python udp_client1.py
+     python prog_udp1.py
      # ou
-     python udp_client2.py
+     python prog_udp2.py
      ```
 
 3. **Interação Admin/User:**
