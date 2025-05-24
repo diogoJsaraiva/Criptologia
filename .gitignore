@@ -37,8 +37,8 @@ eggs/
 *.egg
 
 # Ignore config or secrets EXAMPLE
-# assets/config.txt
-# assets/utilizadores.txt
+assets/config.txt
+assets/utilizadores.txt
 
 # Exclude backups, logs, temp files
 *.log
