@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import socket
-from core.crypto import caesar_decrypt,decifrar_mensagem, generate_shared_key
+from core.crypto import caesar_decrypt, decifrar_mensagem, generate_shared_key
 from core.config import get_metodo
 
 prime = 23

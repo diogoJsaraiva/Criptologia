@@ -1,7 +1,7 @@
-from user_mgmt import login, registar_utilizador
-from config import escolher_metodo, get_metodo
-from crypto import cifrar_mensagem
-from vpn_client import enviar_mensagem_vpn
+from core.user_mgmt import login, registar_utilizador
+from core.config import escolher_metodo, get_metodo
+from core.crypto import cifrar_mensagem
+from vpn.vpn_client import enviar_mensagem_vpn
 
 def menu_admin(username):
     while True:

@@ -77,12 +77,12 @@ A VPN é composta por:
 
     2. **No primeiro terminal, corre o servidor UDP (ProgUDP2):**
         ```bash
-        python prog_udp2.py
+        python udp/prog_udp2.py
         ```
 
     3. **No segundo terminal, corre o servidor VPN:**
         ```bash
-        python vpn_server.py
+        python vpn/vpn_server.py
         ```
 
     4. **No terceiro terminal, corre o menu principal (autenticação, menus, envio):**
