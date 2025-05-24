@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -52,3 +53,12 @@ eggs/
 
 # VS Code local history
 .history/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
