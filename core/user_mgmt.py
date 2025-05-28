@@ -47,6 +47,11 @@ def login():
 def registar_utilizador():
     print("\n=== Registar Novo Utilizador ===")
     username = input("Novo username: ")
+    utilizadores = ler_utilizadores()
+    userExists = utilizadores.get(username)
+    if userExists:
+        print("\n=== O utilizador já existe!!!  ===")
+        return registar_utilizador()
     password = input("Nova password: ")
     while True:
         role = input("Role ('admin' ou 'user'): ").strip().lower()
