@@ -69,6 +69,38 @@ A VPN é composta por:
      # ou
      python prog_udp2.py
      ```
+    ---
+
+    ## Como correr esta versão dos Menus
+
+    1. **Abre 3 terminais na pasta do projeto.**
+
+    2. **No primeiro terminal, corre o servidor UDP (ProgUDP2):**
+        ```bash
+        python udp/prog_udp2.py
+        ```
+
+    3. **No segundo terminal, corre o servidor VPN:**
+        ```bash
+        python vpn/vpn_server.py
+        ```
+
+    4. **No terceiro terminal, corre o menu principal (autenticação, menus, envio):**
+        ```bash
+        python main.py
+        ```
+
+    - **Ao iniciares o `main.py`, vais ver o ecrã de login.**
+        - Usa o utilizador padrão na primeira execução:
+          - **Username:** `admin`
+          - **Password:** `admin123`
+    - **Se entrares como admin:**
+        - Podes criar novos utilizadores (admin ou user)
+        - Alterar o método de cifra (Caesar Cipher, podes definir o shift)
+        - Enviar mensagens (vão cifradas via VPN)
+    - **Se entrares como user:**
+        - Só podes enviar mensagens
+
 
 3. **Interação Admin/User:**
 
