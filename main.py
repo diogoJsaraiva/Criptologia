@@ -2,11 +2,11 @@ import subprocess
 import sys
 import os
 import time
-
+import socket
 from core.user_mgmt import login, registar_utilizador
 from core.config import escolher_metodo, get_metodo
-from core.crypto import cifrar_mensagem
-from vpn.vpn_client import enviar_mensagem_vpn
+
+
 
 def start_background_services():
     processes = []
@@ -69,15 +69,16 @@ def enviar_mensagem():
     while True:
         print(f"Método de cifragem atual: {metodo} ({extra if extra else 'default'})")
         mensagem = input("Mensagem a enviar: ")
-        cifrada = cifrar_mensagem(mensagem, metodo, extra)
         print(f"\nMensagem original: {mensagem}")
-        print(f"Mensagem cifrada: {cifrada}\n")
-        enviar_mensagem_vpn(cifrada)
+        enviar_mensagem_vpn(mensagem)
         print(f"Mensagem cifrada enviada via VPN.")
         nova = input("Deseja enviar outra mensagem? (s/n): ").strip().lower()
         if nova != "s":
             break
-
+def enviar_mensagem_vpn(mensagem_cifrada):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(mensagem_cifrada.encode(), ("127.0.0.1", 8888))
+    sock.close()
 
 def main():
     while True:
@@ -101,7 +102,7 @@ def main():
 
 if __name__ == "__main__":
     # Arranca os serviços de background (VPN server e UDP receiver)
-    processes = "" #start_background_services()
+    processes = start_background_services()
     try:
         main()
     finally:
