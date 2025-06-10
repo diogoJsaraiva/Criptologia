@@ -3,6 +3,8 @@ import os
 FICHEIRO_CONFIG = "assets/config.txt"
 
 def get_metodo():
+    if not os.path.exists(FICHEIRO_CONFIG):
+        os.makedirs(os.path.dirname(FICHEIRO_CONFIG), exist_ok=True)
     with open(FICHEIRO_CONFIG, "r") as f:
         linha = f.readline().strip()
         partes = linha.split(";")
