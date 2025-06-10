@@ -101,6 +101,17 @@ A VPN é composta por:
     - **Se entrares como user:**
         - Só podes enviar mensagens
 
+    ## Como correr os testes
+
+    1. Instale as dependências:
+      ```bash
+      pip install -r requirements.txt
+      ```
+    2. Execute o conjunto de testes a partir da raiz (ou de qualquer
+      subdiretório) com o **pytest**:
+      ```bash
+      python -m pytest -q
+      ```
 
 3. **Interação Admin/User:**
 
