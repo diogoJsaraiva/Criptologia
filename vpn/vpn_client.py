@@ -39,7 +39,7 @@ async def vpn_client():
         server_pub_key = int(await websocket.recv())
         shared_key = generate_shared_key(server_pub_key, private_key, prime)
         print(f"[VPN Client] Shared key: {shared_key}")
-        set_metodo("caesar", shared_key)
+        set_metodo("caesar1", shared_key)
         loop = asyncio.get_event_loop()
 
         while True:

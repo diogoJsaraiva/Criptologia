@@ -65,9 +65,7 @@ def menu_user(username):
             print("Opção inválida.")
 
 def enviar_mensagem():
-    metodo, extra = get_metodo()
     while True:
-        print(f"Método de cifragem atual: {metodo} ({extra if extra else 'default'})")
         mensagem = input("Mensagem a enviar: ")
         print(f"\nMensagem original: {mensagem}")
         enviar_mensagem_vpn(mensagem)

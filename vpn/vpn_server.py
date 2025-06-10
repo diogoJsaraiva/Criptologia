@@ -18,7 +18,7 @@ async def handle_client(websocket):
     await websocket.send(str(server_pub_key))
     shared_key = generate_shared_key(client_pub_key, private_key, prime)
     print(f"[VPN Server] Shared key: {shared_key}")
-    set_metodo("caesar",shared_key)
+    set_metodo("caesar1",shared_key)
 
     try:
         while True:

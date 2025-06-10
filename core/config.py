@@ -3,8 +3,6 @@ import os
 FICHEIRO_CONFIG = "assets/config.txt"
 
 def get_metodo():
-    if not os.path.exists(FICHEIRO_CONFIG):
-        set_metodo("caesar", "3")
     with open(FICHEIRO_CONFIG, "r") as f:
         linha = f.readline().strip()
         partes = linha.split(";")
