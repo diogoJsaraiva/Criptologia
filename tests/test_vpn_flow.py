@@ -40,3 +40,16 @@ def test_vpn_flow(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "Mensagem recebida e decifrada: hello" in output
     assert dummy.sent == [(b"hello", ("127.0.0.1", 9999))]
+
+    
+def test_config_menus(monkeypatch):
+    monkeypatch.setattr(vpn_server, "get_tcp_params", lambda: ("h", "p"))
+    monkeypatch.setattr(vpn_server, "get_metodo", lambda: ("caesar", "3"))
+    monkeypatch.setattr(vpn_client, "get_tcp_params", lambda: ("h", "p"))
+    monkeypatch.setattr(vpn_client, "get_metodo", lambda: ("caesar", "3"))
+
+    menu_client = vpn_client.get_config_menu()
+    menu_server = vpn_server.get_config_menu()
+
+    assert menu_client["component"] == "vpn_client"
+    assert menu_server["component"] == "vpn_server"
