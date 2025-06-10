@@ -32,6 +32,7 @@ def test_login_success(monkeypatch, tmp_path):
     inputs = iter(["bob", "mypwd"])  # login uma vez com sucesso
 
     monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+    monkeypatch.setattr(user_mgmt.getpass, "getpass", lambda _: next(inputs))
     username, role = user_mgmt.login()
 
     assert username == "bob"

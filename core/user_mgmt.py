@@ -1,4 +1,5 @@
 import os
+import getpass
 from core.crypto import caesar_encrypt, caesar_decrypt
 
 FICHEIRO_UTILIZADORES = "assets/utilizadores.txt"
@@ -31,7 +32,8 @@ def login():
     while True:
         print("\n=== Ecrã de Login ===")
         username = input("Username: ")
-        password = input("Password: ")
+        # Usa getpass para que a password n\xE3o fique vis\xEDvel no terminal
+        password = getpass.getpass("Password: ")
         user = utilizadores.get(username)
         if user:
             password_decifrada = caesar_decrypt(user["password"], 3)
@@ -52,7 +54,8 @@ def registar_utilizador():
     if userExists:
         print("\n=== O utilizador já existe!!!  ===")
         return registar_utilizador()
-    password = input("Nova password: ")
+    # Oculta a password enquanto \xE9 escrita
+    password = getpass.getpass("Nova password: ")
     while True:
         role = input("Role ('admin' ou 'user'): ").strip().lower()
         if role in ("admin", "user"):
