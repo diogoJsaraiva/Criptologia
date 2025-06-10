@@ -1,14 +1,14 @@
 import asyncio
 import websockets
 import socket
-from core.crypto import caesar_encrypt, generate_shared_key, generate_public_key, generate_private_key 
-
+from core.crypto import caesar_encrypt,cifrar_mensagem, generate_shared_key, generate_public_key, generate_private_key
+from core.config import escolher_metodo, get_metodo,set_metodo
 prime = 23
 base = 5
 private_key = generate_private_key()
 public_key = generate_public_key(base, prime, private_key)
 shared_key = None
-
+'''
 async def enviar_vpn_async(mensagem_cifrada):
     global shared_key
     async with websockets.connect("ws://localhost:8765") as websocket:
@@ -39,7 +39,7 @@ async def vpn_client():
         server_pub_key = int(await websocket.recv())
         shared_key = generate_shared_key(server_pub_key, private_key, prime)
         print(f"[VPN Client] Shared key: {shared_key}")
-
+        set_metodo("caesar1", shared_key)
         loop = asyncio.get_event_loop()
 
         while True:
@@ -47,13 +47,11 @@ async def vpn_client():
                 # corre recvfrom em background para não bloquear
                 data, _ = await loop.run_in_executor(None, sock.recvfrom, 1024)
                 message = data.decode()
-                encrypted = caesar_encrypt(message, shared_key)
+                metodo,extra = get_metodo()
+                encrypted = cifrar_mensagem(message, metodo, extra)
                 await websocket.send(encrypted)
                 print(f"[VPN Client] Mensagem cifrada enviada: {encrypted}")
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 await asyncio.sleep(1)
-
-asyncio.run(vpn_client())
-'''
