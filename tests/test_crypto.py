@@ -1,4 +1,5 @@
 import builtins
+import hashlib
 from core import crypto
 
 
@@ -10,6 +11,18 @@ def test_caesar_cipher_roundtrip():
     decrypted = crypto.caesar_decrypt(encrypted, shift)
     assert decrypted == original
 
+
+def test_xor_cipher_roundtrip():
+    original = "crypto"
+    key = 7
+    encrypted = crypto.xor_encrypt(original, key)
+    assert encrypted != original
+    decrypted = crypto.xor_decrypt(encrypted, key)
+    assert decrypted == original
+
+def test_hash_function():
+    text = "hello"
+    assert crypto.calcular_hash(text) == crypto.hashlib.sha256(text.encode()).hexdigest()
 
 def test_diffie_hellman_shared_key():
     prime = 23
