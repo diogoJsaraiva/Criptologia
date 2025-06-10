@@ -2,12 +2,25 @@ import asyncio
 import websockets
 import socket
 from core.crypto import caesar_encrypt, generate_shared_key, generate_public_key, generate_private_key 
+from core.config import get_metodo, get_tcp_params
 
 prime = 23
 base = 5
 private_key = generate_private_key()
 public_key = generate_public_key(base, prime, private_key)
 shared_key = None
+
+def get_config_menu():
+    metodo, extra = get_metodo()
+    host, port = get_tcp_params()
+    return {
+        "component": "vpn_client",
+        "metodo": metodo,
+        "extra": extra,
+        "host": host,
+        "port": port,
+    }
+
 
 async def enviar_vpn_async(mensagem_cifrada):
     global shared_key

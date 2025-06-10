@@ -7,6 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 from core.crypto import caesar_decrypt, decifrar_mensagem, generate_shared_key
 from core.config import get_metodo
+from core.config import get_metodo, get_tcp_params
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +16,26 @@ base = 5
 private_key = 6  # VPN Server's private key
 shared_key = None
 
+def get_config_menu():
+    metodo, extra = get_metodo()
+    host, port = get_tcp_params()
+    return {
+        "component": "vpn_server",
+        "metodo": metodo,
+        "extra": extra,
+        "host": host,
+        "port": port,
+    }
+
 async def handle_client(websocket):
     global shared_key
-    logger.info("[VPN Server] Ligação estabelecida.")
+    print("[VPN Server] Ligação estabelecida.")
 
     client_pub_key = int(await websocket.recv())
     server_pub_key = pow(base, private_key, prime)
     await websocket.send(str(server_pub_key))
     shared_key = generate_shared_key(client_pub_key, private_key, prime)
-    logger.info(f"[VPN Server] Shared key: {shared_key}")
+    print(f"[VPN Server] Shared key: {shared_key}")
 
     metodo, extra = get_metodo()
 
@@ -31,14 +43,14 @@ async def handle_client(websocket):
         while True:
             encrypted_msg = await websocket.recv()
             decrypted_msg = decifrar_mensagem(encrypted_msg, metodo, extra)
-            logger.info(f"[VPN Server] Mensagem recebida e decifrada: {decrypted_msg}")
+            print(f"[VPN Server] Mensagem recebida e decifrada: {decrypted_msg}")
             # Also print so that tests capturing stdout see this message
             print(f"Mensagem recebida e decifrada: {decrypted_msg}")
 
             udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             udp_sock.sendto(decrypted_msg.encode(), ("127.0.0.1", 9999))
     except Exception as e:
-        logger.info("[VPN Server] Ligação terminada (cliente fechou ligação).")
+        print("[VPN Server] Ligação terminada (cliente fechou ligação).")
 
 
 async def main():
