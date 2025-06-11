@@ -46,23 +46,33 @@ def login():
             return None, None
 
 
+import getpass
+
 def registar_utilizador():
     print("\n=== Registar Novo Utilizador ===")
-    username = input("Novo username: ")
-    utilizadores = ler_utilizadores()
-    userExists = utilizadores.get(username)
-    if userExists:
-        print("\n=== O utilizador já existe!!!  ===")
-        return registar_utilizador()
-    # Oculta a password enquanto \xE9 escrita
+    while True:
+        username = input("Novo username: ")
+        utilizadores = ler_utilizadores()
+        if username in utilizadores:
+            print("\n=== O utilizador já existe! ===")
+            resposta = input("Deseja tentar de novo? (s/n): ").strip().lower()
+            if resposta == "s":
+                continue
+            else:
+                print("Operação cancelada.")
+                return
+        else:
+            break
+
     password = getpass.getpass("Nova password: ")
     while True:
         role = input("Role ('admin' ou 'user'): ").strip().lower()
         if role in ("admin", "user"):
             break
-        print("Role inválido. Tem de ser 'admin' ou 'user'.")
+        print("Role inválida. Tem de ser 'admin' ou 'user'.")
     guardar_utilizador(username, password, role)
     print(f"Utilizador {username} ({role}) criado com sucesso.")
+
 
 
 def escrever_utilizadores(utilizadores):

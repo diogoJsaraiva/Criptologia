@@ -55,3 +55,7 @@ def generate_shared_key(received_key, private_key, prime):
     
 def calcular_hash(mensagem):
     return hashlib.sha256(mensagem.encode()).hexdigest()
+
+# Simple hash: sum of ASCII values
+def simple_hash(mensagem):
+    return str(sum(ord(c) for c in mensagem))

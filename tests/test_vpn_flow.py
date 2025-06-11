@@ -29,9 +29,13 @@ def test_vpn_flow(monkeypatch, capsys):
     dummy = DummySocket()
 
     async def runner():
-        async with websockets.serve(vpn_server.handle_client, "localhost", 8765):
+        async with websockets.serve(vpn_server.handle_client, "localhost", 0) as server:
+            port = server.sockets[0].getsockname()[1]
             monkeypatch.setattr(vpn_server, "socket", DummySocketModule(dummy))
             monkeypatch.setattr(vpn_server, "get_metodo", lambda: ("caesar", "3"))
+            monkeypatch.setattr(vpn_server, "generate_shared_key", lambda *a, **k: 3)
+            monkeypatch.setattr(vpn_client, "generate_shared_key", lambda *a, **k: 3)
+            monkeypatch.setattr(vpn_client, "get_tcp_params", lambda: ("localhost", str(port)))
             await run_client("hello")
             await asyncio.sleep(0.1)
 

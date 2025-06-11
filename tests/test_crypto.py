@@ -24,6 +24,11 @@ def test_hash_function():
     text = "hello"
     assert crypto.calcular_hash(text) == crypto.hashlib.sha256(text.encode()).hexdigest()
 
+def test_simple_hash_function():
+    text = "abc"
+    expected = str(sum(ord(c) for c in text))
+    assert crypto.simple_hash(text) == expected
+    
 def test_diffie_hellman_shared_key():
     prime = 23
     base = 5

@@ -11,6 +11,8 @@ from core.crypto import (
     caesar_encrypt,
     xor_encrypt,
     generate_shared_key,
+    decifrar_mensagem,
+    cifrar_mensagem,
 )
 from core.config import get_metodo, get_tcp_params
 
@@ -44,7 +46,7 @@ async def handle_client(websocket):
     shared_key = generate_shared_key(client_pub_key, private_key, prime)
     print(f"[VPN Server] Shared key: {shared_key}")
 
-    metodo, _ = get_metodo()
+    metodo, extra = get_metodo()
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if hasattr(udp_sock, "bind"):
@@ -54,7 +56,7 @@ async def handle_client(websocket):
     loop = asyncio.get_event_loop()
 
     async def ws_to_udp():
-        if not hasattr(udp_sock, "recvfrom"):
+        if not hasattr(udp_sock, "sendto"):
             return
         while True:
             encrypted_msg = await websocket.recv()
@@ -63,20 +65,18 @@ async def handle_client(websocket):
             elif metodo == "xor":
                 decrypted_msg = xor_decrypt(encrypted_msg, shared_key)
             else:
-                decrypted_msg = encrypted_msg
+                decrypted_msg = decifrar_mensagem(encrypted_msg, metodo, extra)
             print(f"[VPN Server] Mensagem recebida e decifrada: {decrypted_msg}")
-            udp_sock.sendto(decrypted_msg.encode(), UDP_TARGET_ADDR)
+            if hasattr(udp_sock, "sendto"):
+                udp_sock.sendto(decrypted_msg.encode(), UDP_TARGET_ADDR)
 
     async def udp_to_ws():
+        if not hasattr(udp_sock, "recvfrom"):
+            return
         while True:
             data, _ = await loop.run_in_executor(None, udp_sock.recvfrom, 1024)
             message = data.decode()
-            if metodo == "caesar":
-                encrypted = caesar_encrypt(message, shared_key)
-            elif metodo == "xor":
-                encrypted = xor_encrypt(message, shared_key)
-            else:
-                encrypted = message
+            encrypted = cifrar_mensagem(message, metodo, extra)
             await websocket.send(encrypted)
 
     try:

@@ -40,12 +40,15 @@ async def enviar_vpn_async(mensagem):
     global shared_key
     host, port = get_tcp_params()
     url = f"ws://{host}:{port}"
-    async with websockets.connect(url) as websocket:
-        await websocket.send(str(public_key))
-        server_pub_key = int(await websocket.recv())
-        shared_key = generate_shared_key(server_pub_key, private_key, prime)
-        await websocket.send(mensagem)
-        # Não é necessário receber nada, a função termina aqui.
+    try:
+        async with websockets.connect(url) as websocket:
+            await websocket.send(str(public_key))
+            server_pub_key = int(await websocket.recv())
+            shared_key = generate_shared_key(server_pub_key, private_key, prime)
+            await websocket.send(mensagem)
+            # Não é necessário receber nada, a função termina aqui.
+    except websockets.exceptions.ConnectionClosedOK:
+        pass
 
 
 def enviar_mensagem_vpn(mensagem):
