@@ -4,8 +4,9 @@ import os
 import time
 
 from core.user_mgmt import login, registar_utilizador
-from core.config import escolher_metodo, get_metodo
+from core.config import escolher_metodo, get_metodo, get_tcp_params
 from core.crypto import cifrar_mensagem
+from vpn import vpn_client, vpn_server
 from vpn.vpn_client import enviar_mensagem_vpn
 
 def start_background_services():
@@ -15,11 +16,17 @@ def start_background_services():
     env['PYTHONPATH'] = root_dir  # Força PYTHONPATH para raiz
 
     vpn_server_path = os.path.join(root_dir, 'vpn', 'vpn_server.py')
+    vpn_client_path = os.path.join(root_dir, 'vpn', 'vpn_client.py')
     udp_receiver_path = os.path.join(root_dir, 'udp', 'prog_udp2.py')
 
     vpn_proc = subprocess.Popen([sys.executable, vpn_server_path], env=env)
     processes.append(vpn_proc)
     print("[MAIN] VPN Server iniciado.")
+    time.sleep(1)
+
+    vpn_client_proc = subprocess.Popen([sys.executable, vpn_client_path], env=env)
+    processes.append(vpn_client_proc)
+    print("[MAIN] VPN Client iniciado.")
     time.sleep(1)
 
     udp_proc = subprocess.Popen([sys.executable, udp_receiver_path], env=env)
@@ -36,7 +43,10 @@ def menu_admin(username):
         print("1. Criar novo utilizador")
         print("2. Mudar modo de criptografia")
         print("3. Enviar mensagem")
-        print("4. Logout")
+        print("4. Ver parâmetros TCP")
+        print("5. Ver menu VPN Client")
+        print("6. Ver menu VPN Server")
+        print("7. Logout")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
             registar_utilizador()
@@ -45,6 +55,13 @@ def menu_admin(username):
         elif escolha == "3":
             enviar_mensagem()
         elif escolha == "4":
+            host, port = get_tcp_params()
+            print(f"TCP -> host: {host}, port: {port}")
+        elif escolha == "5":
+            print(vpn_client.get_config_menu())
+        elif escolha == "6":
+            print(vpn_server.get_config_menu())
+        elif escolha == "7":
             print("Sessão terminada. A voltar ao login.")
             break
         else:

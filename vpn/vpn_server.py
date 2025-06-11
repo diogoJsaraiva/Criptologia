@@ -7,12 +7,12 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Ensure INFO level logs are emitted during tests
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 from core.crypto import caesar_decrypt, decifrar_mensagem, generate_shared_key
 from core.config import get_metodo
 from core.config import get_metodo, get_tcp_params
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 prime = 23
 base = 5
