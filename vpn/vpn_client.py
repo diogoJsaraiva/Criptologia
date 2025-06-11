@@ -35,8 +35,8 @@ def get_config_menu():
 
 
 async def enviar_vpn_async(mensagem):
-    """Estabelece ligação ao servidor VPN e envia uma mensagem cifrada com a
-    chave partilhada obtida via Diffie–Hellman."""
+    """Estabelece ligação ao servidor VPN e envia uma mensagem já cifrada
+    usando a chave partilhada obtida via Diffie–Hellman."""
     global shared_key
     host, port = get_tcp_params()
     url = f"ws://{host}:{port}"
@@ -44,16 +44,7 @@ async def enviar_vpn_async(mensagem):
         await websocket.send(str(public_key))
         server_pub_key = int(await websocket.recv())
         shared_key = generate_shared_key(server_pub_key, private_key, prime)
-
-        metodo, _ = get_metodo()
-        if metodo == "caesar":
-            encrypted = caesar_encrypt(mensagem, shared_key)
-        elif metodo == "xor":
-            encrypted = xor_encrypt(mensagem, shared_key)
-        else:
-            encrypted = mensagem
-
-        await websocket.send(encrypted)
+        await websocket.send(mensagem)
         # Não é necessário receber nada, a função termina aqui.
 
 

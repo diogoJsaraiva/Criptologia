@@ -36,19 +36,26 @@ def escolher_metodo():
     print("\n=== Mudar modo de criptografia ===")
     print("1. Caesar Cipher")
     print("2. XOR Cipher")
-
-    escolha = input("Escolha o método [1]: ").strip()
-    if escolha == "1" or escolha == "":
-        shift = input("Shift do Caesar (ex: 3): ").strip()
-        if not shift.isdigit():
-            shift = "3"
-        set_metodo("caesar", shift)
-        print("Método definido para Caesar Cipher.")
-    elif escolha == "2":
-        chave = input("Chave XOR (0-255): ").strip()
-        if not chave.isdigit():
-            chave = "42"
-        set_metodo("xor", chave)
-        print("Método definido para XOR Cipher.")
-    else:
-        print("Opção inválida.")
+    
+    while True:
+        escolha = input("Escolha o método: ").strip()
+        if escolha == "1":
+            while True:
+                shift = input("Shift do Caesar (1-25): ").strip()
+                if shift.isdigit() and 1 <= int(shift) <= 25:
+                    set_metodo("caesar", shift)
+                    print("Método definido para Caesar Cipher.")
+                    return
+                else:
+                    print("Shift inválido. Deve ser um número entre 1 e 25.")
+        elif escolha == "2":
+            while True:
+                chave = input("Chave XOR (0-255): ").strip()
+                if chave.isdigit() and 0 <= int(chave) <= 255:
+                    set_metodo("xor", chave)
+                    print("Método definido para XOR Cipher.")
+                    return
+                else:
+                    print("Chave inválida. Deve ser um número entre 0 e 255.")
+        else:
+            print("Opção inválida. Escolha 1 para Caesar ou 2 para XOR.")

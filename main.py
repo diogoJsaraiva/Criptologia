@@ -3,7 +3,13 @@ import sys
 import os
 import time
 
-from core.user_mgmt import login, registar_utilizador
+from core.user_mgmt import (
+    login,
+    registar_utilizador,
+    listar_utilizadores,
+    remover_utilizador,
+    alterar_role,
+)
 from core.config import escolher_metodo, get_metodo, get_tcp_params
 from core.crypto import cifrar_mensagem
 from vpn import vpn_client, vpn_server
@@ -36,11 +42,42 @@ def start_background_services():
 
     return processes
 
+def menu_gestao_utilizadores():
+    while True:
+        print("\n=== Gestão de Utilizadores ===")
+        print("1. Criar utilizador")
+        print("2. Listar utilizadores")
+        print("3. Remover utilizador")
+        print("4. Alterar role")
+        print("5. Voltar")
+        escolha = input("Escolha: ").strip()
+        if escolha == "1":
+            registar_utilizador()
+        elif escolha == "2":
+            users = listar_utilizadores()
+            for u, info in users.items():
+                print(f"{u} -> {info['role']}")
+        elif escolha == "3":
+            username = input("Username a remover: ")
+            remover_utilizador(username)
+        elif escolha == "4":
+            username = input("Username: ")
+            role = input("Novo role ('admin' ou 'user'): ").strip().lower()
+            if role in ("admin", "user"):
+                alterar_role(username, role)
+            else:
+                print("Role inválido.")
+        elif escolha == "5":
+            print("A voltar ao login.")
+            break
+        else:
+            print("Opção inválida.")
+
 
 def menu_admin(username):
     while True:
         print(f"\nBem-vindo, admin => {username}!")
-        print("1. Criar novo utilizador")
+        print("1. Gestão de utilizadores")
         print("2. Mudar modo de criptografia")
         print("3. Enviar mensagem")
         print("4. Ver parâmetros TCP")
@@ -49,7 +86,7 @@ def menu_admin(username):
         print("7. Logout")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
-            registar_utilizador()
+            menu_gestao_utilizadores()
         elif escolha == "2":
             escolher_metodo()
         elif escolha == "3":
@@ -100,7 +137,7 @@ def main():
     while True:
         print("\n=== Menu Principal ===")
         print("1. Login")
-        print("2. Desligar aplicação")
+        print("2. Sair da Aplicação")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
             username, role = login()

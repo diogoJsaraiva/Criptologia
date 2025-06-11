@@ -3,16 +3,24 @@ import hashlib
 
 # Caesar Cipher
 def caesar_encrypt(text, shift):
+    if not 1 <= shift <= 25:
+        raise ValueError("Shift must be between 1 and 25")
     return ''.join(chr((ord(c) + shift) % 256) for c in text)
 
 def caesar_decrypt(text, shift):
+    if not 1 <= shift <= 25:
+        raise ValueError("Shift must be between 1 and 25")
     return ''.join(chr((ord(c) - shift) % 256) for c in text)
 
 # XOR Cipher
 def xor_encrypt(text, key):
+    if not 0 <= key <= 255:
+        raise ValueError("XOR key must be between 0 and 255")
     return ''.join(chr(ord(c) ^ key) for c in text)
 
 def xor_decrypt(text, key):
+    if not 0 <= key <= 255:
+        raise ValueError("XOR key must be between 0 and 255")
     return ''.join(chr(ord(c) ^ key) for c in text)
 
 def cifrar_mensagem(mensagem, metodo, extra):

@@ -63,3 +63,33 @@ def registar_utilizador():
         print("Role inválido. Tem de ser 'admin' ou 'user'.")
     guardar_utilizador(username, password, role)
     print(f"Utilizador {username} ({role}) criado com sucesso.")
+
+
+def escrever_utilizadores(utilizadores):
+    with open(FICHEIRO_UTILIZADORES, "w") as f:
+        for u, info in utilizadores.items():
+            f.write(f"{u};{info['password']};{info['role']}\n")
+
+
+def listar_utilizadores():
+    return ler_utilizadores()
+
+
+def remover_utilizador(username):
+    utilizadores = ler_utilizadores()
+    if username in utilizadores:
+        del utilizadores[username]
+        escrever_utilizadores(utilizadores)
+        print(f"Utilizador {username} removido.")
+    else:
+        print("Utilizador não encontrado.")
+
+
+def alterar_role(username, novo_role):
+    utilizadores = ler_utilizadores()
+    if username in utilizadores:
+        utilizadores[username]["role"] = novo_role
+        escrever_utilizadores(utilizadores)
+        print(f"Role de {username} atualizado para {novo_role}.")
+    else:
+        print("Utilizador não encontrado.")

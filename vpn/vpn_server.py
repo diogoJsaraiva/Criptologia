@@ -37,23 +37,25 @@ def get_config_menu():
 async def handle_client(websocket):
     global shared_key
     print("[VPN Server] Ligação estabelecida.")
-    print("[VPN Server] Ligação estabelecida.")
 
     client_pub_key = int(await websocket.recv())
     server_pub_key = pow(base, private_key, prime)
     await websocket.send(str(server_pub_key))
     shared_key = generate_shared_key(client_pub_key, private_key, prime)
     print(f"[VPN Server] Shared key: {shared_key}")
-    print(f"[VPN Server] Shared key: {shared_key}")
 
     metodo, _ = get_metodo()
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_sock.bind(("127.0.0.1", UDP_LISTEN_PORT))
-    udp_sock.setblocking(False)
+    if hasattr(udp_sock, "bind"):
+        udp_sock.bind(("127.0.0.1", UDP_LISTEN_PORT))
+    if hasattr(udp_sock, "setblocking"):
+        udp_sock.setblocking(False)
     loop = asyncio.get_event_loop()
 
     async def ws_to_udp():
+        if not hasattr(udp_sock, "recvfrom"):
+            return
         while True:
             encrypted_msg = await websocket.recv()
             if metodo == "caesar":
@@ -62,9 +64,6 @@ async def handle_client(websocket):
                 decrypted_msg = xor_decrypt(encrypted_msg, shared_key)
             else:
                 decrypted_msg = encrypted_msg
-            print(
-                f"[VPN Server] Mensagem recebida e decifrada: {decrypted_msg}"
-            )
             print(f"[VPN Server] Mensagem recebida e decifrada: {decrypted_msg}")
             udp_sock.sendto(decrypted_msg.encode(), UDP_TARGET_ADDR)
 

@@ -117,10 +117,10 @@ A VPN é composta por:
 
    * Após login, o utilizador será redirecionado para o ecrã adequado (Admin ou User).
    * O Admin pode:
-
-     * Registar novos administradores
-     * Mudar os modos de criptografia
-     * Enviar mensagens criptografadas
+      * Registar novos administradores
+      * Listar, remover e alterar permissões dos utilizadores
+      * Mudar os modos de criptografia
+      * Enviar mensagens criptografadas
    * O User apenas tem acesso ao envio de mensagens
 
 ## Estado do Projeto
