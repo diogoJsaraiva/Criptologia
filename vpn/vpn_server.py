@@ -2,6 +2,9 @@ import asyncio
 import websockets
 import socket
 import logging
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Ensure INFO level logs are emitted during tests
 logging.basicConfig(level=logging.INFO)
