@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import socket
+
 import logging
 import sys
 import os
@@ -28,7 +29,6 @@ base = 5
 private_key = generate_private_key()
 public_key = generate_public_key(base, prime, private_key)
 shared_key = None
-
 
 def get_config_menu():
     metodo, extra = get_metodo()
@@ -64,6 +64,7 @@ async def vpn_client():
         await websocket.send(str(public_key))
         server_pub_key = int(await websocket.recv())
         shared_key = generate_shared_key(server_pub_key, private_key, prime)
+
         logger.info(f"[VPN Client] Shared key: {shared_key}")
 
         loop = asyncio.get_running_loop()

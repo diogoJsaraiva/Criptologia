@@ -21,6 +21,7 @@ from core.crypto import (
 )
 from core.config import get_metodo, get_tcp_params
 
+
 prime = 23
 base = 5
 private_key = 6  # VPN Server's private key

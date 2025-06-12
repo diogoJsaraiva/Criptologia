@@ -132,19 +132,23 @@ def menu_user(username):
             print("Opção inválida.")
 
 def enviar_mensagem():
+
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     destino = ("127.0.0.1", 8888)
     metodo, extra = get_metodo()
     while True:
-        print(f"Método de cifragem atual: {metodo} ({extra if extra else 'default'})")
         mensagem = input("Mensagem a enviar: ")
         print(f"\nMensagem original: {mensagem}")
         udp_sock.sendto(mensagem.encode(), destino)
+
         print(f"Mensagem cifrada enviada via VPN.")
         nova = input("Deseja enviar outra mensagem? (s/n): ").strip().lower()
         if nova != "s":
             break
-
+def enviar_mensagem_vpn(mensagem_cifrada):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(mensagem_cifrada.encode(), ("127.0.0.1", 8888))
+    sock.close()
 
 def main():
     while True:
@@ -168,7 +172,7 @@ def main():
 
 if __name__ == "__main__":
     # Arranca os serviços de background (VPN server e UDP receiver)
-    processes = "" #start_background_services()
+    processes = start_background_services()
     try:
         main()
     finally:
