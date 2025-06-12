@@ -79,10 +79,8 @@ def menu_admin(username):
         print("1. Gestão de utilizadores")
         print("2. Mudar modo de criptografia")
         print("3. Enviar mensagem")
-        print("4. Ver parâmetros TCP")
-        print("5. Ver menu VPN Client")
-        print("6. Ver menu VPN Server")
-        print("7. Logout")
+        print("4. Ver configurações de rede")
+        print("5. Logout")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
             menu_gestao_utilizadores()
@@ -91,27 +89,8 @@ def menu_admin(username):
         elif escolha == "3":
             enviar_mensagem()
         elif escolha == "4":
-            while True:
-                host, port = get_tcp_params()
-                print(f"\nTCP -> host: {host}, port: {port}")
-                cont = input("Pressiona Enter para voltar ao menu principal...")
-                if cont == "":
-                    break
+            menu_config()
         elif escolha == "5":
-            while True:
-                print("\nConfiguração VPN Client:")
-                print(vpn_client.get_config_menu())
-                cont = input("Pressiona Enter para voltar ao menu principal...")
-                if cont == "":
-                    break
-        elif escolha == "6":
-            while True:
-                print("\nConfiguração VPN Server:")
-                print(vpn_server.get_config_menu())
-                cont = input("Pressiona Enter para voltar ao menu principal...")
-                if cont == "":
-                    break
-        elif escolha == "7":
             print("Sessão terminada. A voltar ao login.")
             break
         else:
@@ -145,7 +124,29 @@ def enviar_mensagem():
         nova = input("Deseja enviar outra mensagem? (s/n): ").strip().lower()
         if nova != "s":
             break
-
+def menu_config():
+    while True:
+        print("\n")
+        print("1. Ver parâmetros TCP")
+        print("2. Ver menu VPN Client")
+        print("3. Ver menu VPN Server")
+        print("4. Voltar ao menu anterior")
+        escolha = input("Escolha: ").strip()
+        
+        if escolha == "1":
+            host, port = get_tcp_params()
+            print(f"\nTCP -> host: {host}, port: {port}")
+        elif escolha == "2":
+            print("\nConfiguração VPN Client:")
+            print(vpn_client.get_config_menu())
+        elif escolha == "3":
+            print("\nConfiguração VPN Server:")
+            print(vpn_server.get_config_menu())
+        elif escolha == "4":
+            break
+        else:
+            print("Opção inválida.")
+        input("Pressiona Enter para continuar...")
 
 def main():
     while True:

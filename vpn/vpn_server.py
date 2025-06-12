@@ -71,13 +71,10 @@ async def handle_client(websocket):
                 received_hash = payload.get("hash")
                 metodo, _ = get_metodo()
                 if metodo == "caesar":
-                    print("1")
                     decrypted_msg = caesar_decrypt(encrypted_msg, shared_key)
                 elif metodo == "xor":
-                    print("2")
                     decrypted_msg = xor_decrypt(encrypted_msg, shared_key)
                 elif metodo == "vigenere":
-                    print("3")
                     vigenere_key = shared_key_to_vigenere_key(shared_key)
                     decrypted_msg = vigenere_decrypt(encrypted_msg, vigenere_key)
                 else:
