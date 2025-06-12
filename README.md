@@ -101,15 +101,26 @@ A VPN é composta por:
     - **Se entrares como user:**
         - Só podes enviar mensagens
 
+    ## Como correr os testes
+
+    1. Instale as dependências:
+      ```bash
+      pip install -r requirements.txt
+      ```
+    2. Execute o conjunto de testes a partir da raiz (ou de qualquer
+      subdiretório) com o **pytest**:
+      ```bash
+      python -m pytest -q
+      ```
 
 3. **Interação Admin/User:**
 
    * Após login, o utilizador será redirecionado para o ecrã adequado (Admin ou User).
    * O Admin pode:
-
-     * Registar novos administradores
-     * Mudar os modos de criptografia
-     * Enviar mensagens criptografadas
+      * Registar novos administradores
+      * Listar, remover e alterar permissões dos utilizadores
+      * Mudar os modos de criptografia
+      * Enviar mensagens criptografadas
    * O User apenas tem acesso ao envio de mensagens
 
 ## Estado do Projeto

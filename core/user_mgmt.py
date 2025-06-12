@@ -1,4 +1,5 @@
 import os
+import getpass
 from core.crypto import caesar_encrypt, caesar_decrypt
 
 FICHEIRO_UTILIZADORES = "assets/utilizadores.txt"
@@ -31,7 +32,8 @@ def login():
     while True:
         print("\n=== Ecrã de Login ===")
         username = input("Username: ")
-        password = input("Password: ")
+        # Usa getpass para que a password n\xE3o fique vis\xEDvel no terminal
+        password = getpass.getpass("Password: ")
         user = utilizadores.get(username)
         if user:
             password_decifrada = caesar_decrypt(user["password"], 3)
@@ -44,19 +46,60 @@ def login():
             return None, None
 
 
+import getpass
+
 def registar_utilizador():
     print("\n=== Registar Novo Utilizador ===")
-    username = input("Novo username: ")
-    utilizadores = ler_utilizadores()
-    userExists = utilizadores.get(username)
-    if userExists:
-        print("\n=== O utilizador já existe!!!  ===")
-        return registar_utilizador()
-    password = input("Nova password: ")
+    while True:
+        username = input("Novo username: ")
+        utilizadores = ler_utilizadores()
+        if username in utilizadores:
+            print("\n=== O utilizador já existe! ===")
+            resposta = input("Deseja tentar de novo? (s/n): ").strip().lower()
+            if resposta == "s":
+                continue
+            else:
+                print("Operação cancelada.")
+                return
+        else:
+            break
+
+    password = getpass.getpass("Nova password: ")
     while True:
         role = input("Role ('admin' ou 'user'): ").strip().lower()
         if role in ("admin", "user"):
             break
-        print("Role inválido. Tem de ser 'admin' ou 'user'.")
+        print("Role inválida. Tem de ser 'admin' ou 'user'.")
     guardar_utilizador(username, password, role)
     print(f"Utilizador {username} ({role}) criado com sucesso.")
+
+
+
+def escrever_utilizadores(utilizadores):
+    with open(FICHEIRO_UTILIZADORES, "w") as f:
+        for u, info in utilizadores.items():
+            f.write(f"{u};{info['password']};{info['role']}\n")
+
+
+def listar_utilizadores():
+    return ler_utilizadores()
+
+
+def remover_utilizador(username):
+    utilizadores = ler_utilizadores()
+    if username in utilizadores:
+        del utilizadores[username]
+        escrever_utilizadores(utilizadores)
+        print(f"Utilizador {username} removido.")
+    else:
+        print("Utilizador não encontrado.")
+
+
+def alterar_role(username, novo_role):
+    utilizadores = ler_utilizadores()
+    if username in utilizadores:
+        utilizadores[username]["role"] = novo_role
+        escrever_utilizadores(utilizadores)
+        print(f"Role de {username} atualizado para {novo_role}.")
+    else:
+        print("Utilizador não encontrado.")

@@ -39,6 +39,7 @@ eggs/
 # Ignore config or secrets EXAMPLE
 assets/config.txt
 assets/utilizadores.txt
+assets/tcp_params.txt
 
 # Exclude backups, logs, temp files
 *.log
