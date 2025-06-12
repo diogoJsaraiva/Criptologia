@@ -2,14 +2,22 @@ import asyncio
 import websockets
 import socket
 import logging
+import sys
+import os
+import json
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from core.crypto import (
     caesar_encrypt,
     xor_encrypt,
     caesar_decrypt,
     xor_decrypt,
+    vigenere_encrypt,
+    vigenere_decrypt,
+    shared_key_to_vigenere_key,
     generate_shared_key,
     generate_public_key,
     generate_private_key,
+    calcular_hash_sha256
 )
 from core.config import get_metodo, get_tcp_params
 
@@ -32,29 +40,7 @@ def get_config_menu():
         "host": host,
         "port": port,
     }
-
-
-async def enviar_vpn_async(mensagem):
-    """Estabelece ligação ao servidor VPN e envia uma mensagem já cifrada
-    usando a chave partilhada obtida via Diffie–Hellman."""
-    global shared_key
-    host, port = get_tcp_params()
-    url = f"ws://{host}:{port}"
-    try:
-        async with websockets.connect(url) as websocket:
-            await websocket.send(str(public_key))
-            server_pub_key = int(await websocket.recv())
-            shared_key = generate_shared_key(server_pub_key, private_key, prime)
-            await websocket.send(mensagem)
-            # Não é necessário receber nada, a função termina aqui.
-    except websockets.exceptions.ConnectionClosedOK:
-        pass
-
-
-def enviar_mensagem_vpn(mensagem):
-    """Wrapper síncrono para envio de mensagens através da VPN."""
-    asyncio.run(enviar_vpn_async(mensagem))    
-
+   
 async def udp_listener():
     """Create a UDP socket bound to 127.0.0.1:8888."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -96,57 +82,20 @@ async def vpn_client():
                 encrypted = caesar_encrypt(message, shared_key)
             elif metodo == "xor":
                 encrypted = xor_encrypt(message, shared_key)
+            elif metodo == "vigenere":
+                vigenere_key = shared_key_to_vigenere_key(shared_key)
+                encrypted = vigenere_encrypt(message, vigenere_key)
             else:
                 encrypted = message
+            hash_msg = calcular_hash_sha256(message)
 
-            await websocket.send(encrypted)
+            await websocket.send(json.dumps({
+                "mensagem": encrypted,
+                "hash": hash_msg
+            }))
             logger.info(f"[VPN Client] Mensagem cifrada enviada: {encrypted}")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(vpn_client())
-
-
-async def tunnel_vpn_async(mensagem):
-    """Envia uma mensagem e aguarda uma resposta cifrada, reencaminhando-a
-    para o ProgUDP1."""
-    global shared_key
-    host, port = get_tcp_params()
-    url = f"ws://{host}:{port}"
-    udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    async with websockets.connect(url) as websocket:
-        await websocket.send(str(public_key))
-        server_pub_key = int(await websocket.recv())
-        shared_key = generate_shared_key(server_pub_key, private_key, prime)
-
-        metodo, _ = get_metodo()
-        if metodo == "caesar":
-            encrypted = caesar_encrypt(mensagem, shared_key)
-        elif metodo == "xor":
-            encrypted = xor_encrypt(mensagem, shared_key)
-        else:
-            encrypted = mensagem
-
-        await websocket.send(encrypted)
-        try:
-            encrypted_reply = await asyncio.wait_for(websocket.recv(), timeout=2)
-        except (asyncio.TimeoutError, websockets.exceptions.ConnectionClosedOK):
-            return
-
-        if metodo == "caesar":
-            decrypted = caesar_decrypt(encrypted_reply, shared_key)
-        elif metodo == "xor":
-            decrypted = xor_decrypt(encrypted_reply, shared_key)
-        else:
-            decrypted = encrypted_reply
-
-        udp_sock.sendto(decrypted.encode(), ("127.0.0.1", 8888))
-        udp_sock.close()
-
-
-def tunnel_mensagem_vpn(mensagem):
-    """Wrapper síncrono para tunnel_vpn_async."""
-    asyncio.run(tunnel_vpn_async(mensagem))
-

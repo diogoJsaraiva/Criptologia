@@ -36,7 +36,7 @@ def escolher_metodo():
     print("\n=== Mudar modo de criptografia ===")
     print("1. Caesar Cipher")
     print("2. XOR Cipher")
-    
+    print("3. Vigenere Cipher")
     while True:
         escolha = input("Escolha o método: ").strip()
         if escolha == "1":
@@ -57,5 +57,15 @@ def escolher_metodo():
                     return
                 else:
                     print("Chave inválida. Deve ser um número entre 0 e 255.")
+        elif escolha == "3":
+            while True:
+                chave = input("Palavra-chave para Vigenère (só letras): ").strip()
+                if chave.isalpha():
+                    set_metodo("vigenere", chave.lower())
+                    print("Método definido para Vigenère Cipher.")
+                    return
+                else:
+                    print("Chave inválida. Deve conter apenas letras (a-z, A-Z).")
+ 
         else:
             print("Opção inválida. Escolha 1 para Caesar ou 2 para XOR.")

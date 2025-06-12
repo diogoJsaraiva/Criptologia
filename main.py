@@ -2,7 +2,7 @@ import subprocess
 import sys
 import os
 import time
-
+import socket
 from core.user_mgmt import (
     login,
     registar_utilizador,
@@ -13,7 +13,6 @@ from core.user_mgmt import (
 from core.config import escolher_metodo, get_metodo, get_tcp_params
 from core.crypto import cifrar_mensagem
 from vpn import vpn_client, vpn_server
-from vpn.vpn_client import enviar_mensagem_vpn
 
 def start_background_services():
     processes = []
@@ -92,12 +91,26 @@ def menu_admin(username):
         elif escolha == "3":
             enviar_mensagem()
         elif escolha == "4":
-            host, port = get_tcp_params()
-            print(f"TCP -> host: {host}, port: {port}")
+            while True:
+                host, port = get_tcp_params()
+                print(f"\nTCP -> host: {host}, port: {port}")
+                cont = input("Pressiona Enter para voltar ao menu principal...")
+                if cont == "":
+                    break
         elif escolha == "5":
-            print(vpn_client.get_config_menu())
+            while True:
+                print("\nConfiguração VPN Client:")
+                print(vpn_client.get_config_menu())
+                cont = input("Pressiona Enter para voltar ao menu principal...")
+                if cont == "":
+                    break
         elif escolha == "6":
-            print(vpn_server.get_config_menu())
+            while True:
+                print("\nConfiguração VPN Server:")
+                print(vpn_server.get_config_menu())
+                cont = input("Pressiona Enter para voltar ao menu principal...")
+                if cont == "":
+                    break
         elif escolha == "7":
             print("Sessão terminada. A voltar ao login.")
             break
@@ -119,14 +132,14 @@ def menu_user(username):
             print("Opção inválida.")
 
 def enviar_mensagem():
+    udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    destino = ("127.0.0.1", 8888)
     metodo, extra = get_metodo()
     while True:
         print(f"Método de cifragem atual: {metodo} ({extra if extra else 'default'})")
         mensagem = input("Mensagem a enviar: ")
-        cifrada = cifrar_mensagem(mensagem, metodo, extra)
         print(f"\nMensagem original: {mensagem}")
-        print(f"Mensagem cifrada: {cifrada}\n")
-        enviar_mensagem_vpn(cifrada)
+        udp_sock.sendto(mensagem.encode(), destino)
         print(f"Mensagem cifrada enviada via VPN.")
         nova = input("Deseja enviar outra mensagem? (s/n): ").strip().lower()
         if nova != "s":
