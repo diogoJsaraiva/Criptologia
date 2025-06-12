@@ -53,22 +53,27 @@ A VPN é composta por:
    * Terminal 1: **Servidor TCP (VPN Server)**
 
      ```bash
-     python vpn_server.py
+     PYTHONPATH=.
+     python vpn/vpn_server.py
      ```
 
    * Terminal 2: **Cliente VPN (VPN Client)**
 
      ```bash
-     python vpn_client.py
+     PYTHONPATH=.
+     python vpn/vpn_client.py
      ```
 
-   * Terminal 3: **Cliente UDP 1 ou 2**
+   * Terminal 3: **Cliente UDP 2**
 
      ```bash
-     python prog_udp1.py
-     # ou
-     python prog_udp2.py
+     python udp/prog_udp2.py
      ```
+    * Terminal 4: **Cliente UDP 1**
+
+        ```bash
+        python main.py
+        ```
     ---
 
     ## Como correr esta versão dos Menus
