@@ -56,7 +56,6 @@ async def handle_client(websocket):
         print(f"[VPN Server] Erro durante handshake: {e}")
         return
 
-    metodo, extra = get_metodo()
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_sock.bind(("127.0.0.1", UDP_LISTEN_PORT))
@@ -70,12 +69,15 @@ async def handle_client(websocket):
                 payload = json.loads(encrypted_payload)
                 encrypted_msg = payload.get("mensagem")
                 received_hash = payload.get("hash")
-
+                metodo, _ = get_metodo()
                 if metodo == "caesar":
+                    print("1")
                     decrypted_msg = caesar_decrypt(encrypted_msg, shared_key)
                 elif metodo == "xor":
+                    print("2")
                     decrypted_msg = xor_decrypt(encrypted_msg, shared_key)
                 elif metodo == "vigenere":
+                    print("3")
                     vigenere_key = shared_key_to_vigenere_key(shared_key)
                     decrypted_msg = vigenere_decrypt(encrypted_msg, vigenere_key)
                 else:

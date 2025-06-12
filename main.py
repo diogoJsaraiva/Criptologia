@@ -135,8 +135,8 @@ def enviar_mensagem():
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     destino = ("127.0.0.1", 8888)
-    metodo, extra = get_metodo()
     while True:
+        metodo, extra = get_metodo()
         mensagem = input("Mensagem a enviar: ")
         print(f"\nMensagem original: {mensagem}")
         udp_sock.sendto(mensagem.encode(), destino)
@@ -145,10 +145,7 @@ def enviar_mensagem():
         nova = input("Deseja enviar outra mensagem? (s/n): ").strip().lower()
         if nova != "s":
             break
-def enviar_mensagem_vpn(mensagem_cifrada):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(mensagem_cifrada.encode(), ("127.0.0.1", 8888))
-    sock.close()
+
 
 def main():
     while True:

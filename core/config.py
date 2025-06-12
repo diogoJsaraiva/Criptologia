@@ -6,8 +6,8 @@ FICHEIRO_TCP = "assets/tcp_params.txt"
 def get_metodo():
     if not os.path.exists(FICHEIRO_CONFIG):
         os.makedirs(os.path.dirname(FICHEIRO_CONFIG), exist_ok=True)
-    with open(FICHEIRO_CONFIG, "w") as f:
-        f.write("caesar;3\n")
+        with open(FICHEIRO_CONFIG, "w") as f:
+            f.write("caesar;3\n")
     with open(FICHEIRO_CONFIG, "r") as f:
         linha = f.readline().strip()
         partes = linha.split(";")

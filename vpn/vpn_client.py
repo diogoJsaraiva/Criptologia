@@ -80,16 +80,18 @@ async def vpn_client():
             message = data.decode()
             metodo, _ = get_metodo()
             if metodo == "caesar":
+                print("1")
                 encrypted = caesar_encrypt(message, shared_key)
             elif metodo == "xor":
+                print("2")
                 encrypted = xor_encrypt(message, shared_key)
             elif metodo == "vigenere":
+                print("3")
                 vigenere_key = shared_key_to_vigenere_key(shared_key)
                 encrypted = vigenere_encrypt(message, vigenere_key)
             else:
                 encrypted = message
             hash_msg = calcular_hash_sha256(message)
-
             await websocket.send(json.dumps({
                 "mensagem": encrypted,
                 "hash": hash_msg
