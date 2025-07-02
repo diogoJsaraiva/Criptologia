@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import socket
+import json
 from core.user_mgmt import (
     login,
     registar_utilizador,
@@ -13,7 +14,8 @@ from core.user_mgmt import (
 from core.config import escolher_metodo, get_metodo, get_tcp_params
 from core.crypto import cifrar_mensagem
 from vpn import vpn_client, vpn_server
-
+from core.blockchain import blockchain
+from core.blockchain import Blockchain 
 def start_background_services():
     processes = []
     root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +42,51 @@ def start_background_services():
     time.sleep(1)
 
     return processes
+def validar_blockchain_do_servidor():
+    print("\n[CLIENTE] A pedir blockchain ao servidor VPN...")
+    cadeia_json = pedir_blockchain_ao_vpn()
+    if cadeia_json is None:
+        print("[CLIENTE] Não foi possível obter a blockchain do servidor VPN.")
+        return
 
+    blockchain_local = Blockchain()
+    blockchain_local.from_list(cadeia_json)
+
+    print("[CLIENTE] A validar integridade da cadeia...")
+    if blockchain_local.validar_blockchain():
+        print("[CLIENTE] ✅ Blockchain válida!")
+    else:
+        print("[CLIENTE] ❌ Blockchain inválida!")
+    input("Pressiona Enter para sair...")
+
+def pedir_blockchain_ao_vpn():
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('127.0.0.1', 9999))
+        sock.sendall("GET_BLOCKCHAIN".encode())
+        
+        dados = b""
+        while True:
+            parte = sock.recv(4096)
+            if not parte:
+                break
+            dados += parte
+        sock.close()
+        
+        cadeia = json.loads(dados.decode())
+        return cadeia
+    except Exception as e:
+        print(f"[MAIN] Erro a pedir blockchain ao vpn_server: {e}")
+        return None
+
+def mostrar_blockchain():
+    cadeia = pedir_blockchain_ao_vpn()
+    if cadeia:
+        print("\n--- Blockchain Recebida ---")
+        print(json.dumps(cadeia, indent=4, ensure_ascii=False))
+    else:
+        print("Não foi possível obter a blockchain do servidor VPN.")
+    input("Pressiona Enter para continuar...")
 def menu_gestao_utilizadores():
     while True:
         print("\n=== Gestão de Utilizadores ===")
@@ -79,8 +125,10 @@ def menu_admin(username):
         print("1. Gestão de utilizadores")
         print("2. Mudar modo de criptografia")
         print("3. Enviar mensagem")
-        print("4. Ver configurações de rede")
-        print("5. Logout")
+        print("4. Ver configurações")
+        print("5. Validar Blockchain")
+        print("6. Ver Blockchain (Proof of Work)")
+        print("7. Logout")
         escolha = input("Escolha: ").strip()
         if escolha == "1":
             menu_gestao_utilizadores()
@@ -91,6 +139,10 @@ def menu_admin(username):
         elif escolha == "4":
             menu_config()
         elif escolha == "5":
+            validar_blockchain_do_servidor()
+        elif escolha == "6":
+            mostrar_blockchain()
+        elif escolha == "7":
             print("Sessão terminada. A voltar ao login.")
             break
         else:

@@ -4,23 +4,21 @@ import socket
 import sys
 import os
 import json
+import threading
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from core.crypto import (
     caesar_decrypt,
     xor_decrypt,
-    caesar_encrypt,
-    xor_encrypt,
-    vigenere_encrypt,
     vigenere_decrypt,
     shared_key_to_vigenere_key,
     generate_shared_key,
     decifrar_mensagem,
-    cifrar_mensagem,
     verificar_hash
 )
 from core.config import get_metodo, get_tcp_params
-
+from core.blockchain import blockchain
 
 prime = 23
 base = 5
@@ -30,22 +28,33 @@ shared_key = None
 UDP_LISTEN_PORT = 9998
 UDP_TARGET_ADDR = ("127.0.0.1", 9999)
 
-def get_config_menu():
-    metodo, extra = get_metodo()
-    host, port = get_tcp_params()
-    return {
-        "component": "vpn_server",
-        "metodo": metodo,
-        "extra": extra,
-        "host": host,
-        "port": port,
-    }
+
+def servidor_blockchain(blockchain, host='127.0.0.1', port=9999):
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock.bind((host, port))
+    server_sock.listen()
+    print(f"[VPN_SERVER] Servidor blockchain a escutar em {host}:{port}")
+
+    def handle_client(conn):
+        try:
+            pedido = conn.recv(1024).decode()
+            if pedido == "GET_BLOCKCHAIN":
+                if pedido == "GET_BLOCKCHAIN":
+                    cadeia_json = json.dumps([bloco.to_dict() for bloco in blockchain.chain])
+                    conn.sendall(cadeia_json.encode())
+        except Exception as e:
+            print(f"[VPN_SERVER] Erro no handler: {e}")
+        finally:
+            conn.close()
+
+    while True:
+        conn, addr = server_sock.accept()
+        threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
 
 
 async def handle_client(websocket):
     global shared_key
     print("[VPN Server] Ligação estabelecida.")
-
     try:
         client_pub_key = int(await websocket.recv())
         server_pub_key = pow(base, private_key, prime)
@@ -55,7 +64,6 @@ async def handle_client(websocket):
     except Exception as e:
         print(f"[VPN Server] Erro durante handshake: {e}")
         return
-
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_sock.bind(("127.0.0.1", UDP_LISTEN_PORT))
@@ -69,7 +77,7 @@ async def handle_client(websocket):
                 payload = json.loads(encrypted_payload)
                 encrypted_msg = payload.get("mensagem")
                 received_hash = payload.get("hash")
-                metodo, _ = get_metodo()
+                metodo, extra = get_metodo()
                 if metodo == "caesar":
                     decrypted_msg = caesar_decrypt(encrypted_msg, shared_key)
                 elif metodo == "xor":
@@ -82,6 +90,9 @@ async def handle_client(websocket):
 
                 if verificar_hash(decrypted_msg, received_hash):
                     print(f"[VPN Server] Mensagem válida: {decrypted_msg}")
+                    print(f"ID blockchain: {id(blockchain)}")
+                    blockchain.adicionar_bloco(decrypted_msg)
+                    print("[Blockchain] Bloco adicionado com sucesso!")
                 else:
                     print("[VPN Server] ALERTA: Hash inválido!")
 
@@ -94,36 +105,30 @@ async def handle_client(websocket):
                 print(f"[VPN Server] Erro em ws_to_udp: {e}")
                 break
 
-    async def udp_to_ws():
-        while True:
-            try:
-                data, _ = await loop.run_in_executor(None, udp_sock.recvfrom, 1024)
-                message = data.decode()
-                encrypted = cifrar_mensagem(message, metodo, extra)
-                await websocket.send(encrypted)
-            except websockets.exceptions.ConnectionClosed:
-                print("[VPN Server] WebSocket fechado ao tentar enviar.")
-                break
-            except Exception as e:
-                print(f"[VPN Server] Erro em udp_to_ws: {e}")
-                break
-
     try:
-        await asyncio.gather(ws_to_udp(), udp_to_ws())
-    except Exception as e:
-        print(f"[VPN Server] Erro geral na comunicação: {e}")
+        await ws_to_udp()
     finally:
         udp_sock.close()
         print("[VPN Server] Ligação terminada.")
 
 
-async def main():
+async def main_websocket():
     host, port = get_tcp_params()
     async with websockets.serve(
         handle_client, host, int(port), ping_interval=60, ping_timeout=30
     ):
-        await asyncio.Future()
+        await asyncio.Future()  # Run forever
+
+
+def main():
+    # Corre servidor blockchain numa thread paralela
+    thread_blockchain = threading.Thread(target=servidor_blockchain, args=(blockchain,), daemon=True)
+    thread_blockchain.start()
+    print("[VPN_SERVER] Servidor blockchain thread iniciado.")
+
+    # Corre servidor WebSocket no loop async principal
+    asyncio.run(main_websocket())
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
